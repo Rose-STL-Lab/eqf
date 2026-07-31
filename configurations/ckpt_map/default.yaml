@@ -1,0 +1,44 @@
+# @package _global_
+
+defaults:
+  - base_ckpt_map
+
+# Public release layout produced by scripts/download_checkpoints.sh.
+# Base EqF and NoiseLevelPred EqF intentionally share the released
+# NoiseLevelPred checkpoint; base algorithms ignore readout_head.* weights.
+algorithm:
+  release_checkpoint_root: ${oc.env:EQF_CHECKPOINT_ROOT,./downloaded_checkpoints/shared}
+  null_prompt_embed_path: ${algorithm.release_checkpoint_root}/wan/null_caption_t5.pth
+  model_weights:
+    minecraft:
+      dfot: ${algorithm.release_checkpoint_root}/minecraft/dfot.ckpt
+      flowf: ${algorithm.release_checkpoint_root}/minecraft/flowf.ckpt
+      eqf: ${algorithm.release_checkpoint_root}/minecraft/eqf_noiselevelpred.ckpt
+      eqm_style_trunc_lambda4: ${algorithm.release_checkpoint_root}/minecraft/eqm.ckpt
+      noiselevelpred:
+        eqf: ${algorithm.release_checkpoint_root}/minecraft/eqf_noiselevelpred.ckpt
+    re10k:
+      flowf: ${algorithm.release_checkpoint_root}/re10k/flowf.ckpt
+      eqf: ${algorithm.release_checkpoint_root}/re10k/eqf_noiselevelpred.ckpt
+      eqf_noiselevelpred: ${algorithm.release_checkpoint_root}/re10k/eqf_noiselevelpred.ckpt
+    droid:
+      flowf: ${algorithm.release_checkpoint_root}/droid/flowf.ckpt
+      eqf: ${algorithm.release_checkpoint_root}/droid/eqf_noiselevelpred.ckpt
+      noiselevelpred:
+        eqf: ${algorithm.release_checkpoint_root}/droid/eqf_noiselevelpred.ckpt
+    wan:
+      t2v_1_3b:
+        model_dir: ${algorithm.release_checkpoint_root}/wan/Wan2.1-T2V-1.3B
+        vae_path: ${algorithm.release_checkpoint_root}/wan/Wan2.1-T2V-1.3B/Wan2.1_VAE.pth
+        text_encoder_path: ${algorithm.release_checkpoint_root}/wan/Wan2.1-T2V-1.3B/models_t5_umt5-xxl-enc-bf16.pth
+        tokenizer_path: ${algorithm.release_checkpoint_root}/wan/Wan2.1-T2V-1.3B/google/umt5-xxl
+      ti2v_2_2_5b:
+        model_path: ${algorithm.release_checkpoint_root}/wan/Wan2.2-TI2V-5B/diffusion_pytorch_model*.safetensors
+        vae_path: ${algorithm.release_checkpoint_root}/wan/Wan2.2-TI2V-5B/Wan2.2_VAE.pth
+        text_encoder_path: ${algorithm.release_checkpoint_root}/wan/Wan2.2-TI2V-5B/models_t5_umt5-xxl-enc-bf16.pth
+        tokenizer_path: ${algorithm.release_checkpoint_root}/wan/Wan2.2-TI2V-5B/google/umt5-xxl
+
+  vae:
+    pretrained_dir:
+      minecraft: ${algorithm.release_checkpoint_root}/minecraft/vae.ckpt
+      re10k: ${algorithm.release_checkpoint_root}/wan/Wan2.1-T2V-1.3B/Wan2.1_VAE.pth

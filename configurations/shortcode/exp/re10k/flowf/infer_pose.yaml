@@ -1,0 +1,20 @@
+# @package _global_
+#
+# python -m main shortcode=exp/re10k/flowf/infer_pose ckpt_map=default +name=re10k_fm_pose_infer
+
+defaults:
+  - /shortcode/exp/re10k/base
+  - override /algorithm: wan_t2v_pose_forcing_video
+  - _self_
+
+experiment:
+  tasks: [validation]
+  devices: 1
+  
+  validation:
+    batch_size: 16
+    dataloader:
+      shuffle: false
+    sample_during_training: true
+
+load: ${algorithm.model_weights.re10k.flowf}

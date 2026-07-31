@@ -1,0 +1,35 @@
+# @package algorithm.backbone
+
+defaults:
+  - base
+
+name: wan
+model_type: wan
+model_variant: t2v
+
+in_channels: ${..vae.z_dim}
+out_channels: ${..vae.z_dim}
+external_cond_dim: 0
+temporal_compression_ratio: ${..vae.stride[0]}
+does_vae_act_causal: true
+forward_window_size: ${...algorithm.n_frames}
+use_depth: false
+
+# Pretrained Wan T2V-1.3B backbone metadata.
+# Sources:
+# - `Wan2.1/wan/configs/shared_config.py` for `text_len`
+# - `Wan2.1/wan/configs/wan_t2v_1_3B.py` for the remaining transformer fields below
+# These should stay aligned with the official Wan2.1-T2V-1.3B checkpoint; do not
+# change them unless you are intentionally switching to a different Wan checkpoint family.
+text_len: ${...algorithm.text_encoder.text_len}
+text_dim: ${...algorithm.text_encoder.text_dim}
+patch_size: [1, 2, 2]
+dim: 1536
+ffn_dim: 8960
+freq_dim: 256
+num_heads: 12
+num_layers: 30
+window_size: [-1, -1]
+qk_norm: true
+cross_attn_norm: true
+eps: 1.0e-6

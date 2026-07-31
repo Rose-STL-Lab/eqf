@@ -1,0 +1,30 @@
+# Important: Be careful when modifying this file!
+# This dataset config is used via Hydra: `dataset=minecraft`.
+
+defaults:
+  - base_video
+
+name: minecraft
+
+save_dir: data/minecraft
+
+max_frames: 32
+frame_skip: 1
+# Actually the original resolution is 128x128. but the dfot paper upsamples it to 128x128, and automatic code exists for doing this upsampling.
+resolution: [256, 256]
+
+# Minecraft dataset is actions-conditioned (4 discrete actions in the original implementation)
+external_cond_dim: 4
+transform_type: pad
+# TODO: figure out what the cond processing is.
+external_cond_processing: mask_first
+
+use_depth: False
+
+num_validation_clips: 16
+
+env:
+  training: all
+  validation: all
+
+

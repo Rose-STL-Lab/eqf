@@ -1,0 +1,69 @@
+# Important: Be careful when modifying this file!
+# This dataset config is used via Hydra: `dataset=droid`.
+
+defaults:
+  - base_video
+
+name: droid
+
+# Expected local layout: data/droid/1.0.1.
+save_dir: data/droid
+metadata_path: cleaned_metadata_with_prompt_embeds.csv # cleaned_metadata.csv for first run,  cleaned_metadata_with_prompt_embeds.csv for training
+
+force_download: false
+check_video_path: false
+
+# Old repo mapping:
+#   height: 480, width: 832 -> resolution: [832, 480]
+#   n_frames: 49             -> max_frames: 49
+#   fps: 16                  -> target fps for sampled clips
+resolution: [256, 256]
+max_frames: 49
+n_frames: ${dataset.max_frames}
+fps: 16
+frame_skip: 1
+
+id_token: null
+# Dataset-side flag: load `prompt_embed_path` tensors from the Droid CSV.
+# For WAN training to consume them, also set `algorithm.load_prompt_embed=true`.
+load_prompt_embed: true
+max_text_tokens: 512
+
+# Latents are intentionally online/minimal for Droid.
+latent:
+  type: online
+
+external_cond_dim: 0
+external_cond_processing: null
+transform_type: pad
+use_depth: false
+
+# Preserve old Droid temporal behavior. The sampled frame ids are baked into
+# metadata/*.pt as `video_pts`; training then uses the shared base loader.
+trim_mode: speedup
+pad_mode: slowdown
+test_percentage: 0.01
+shuffle_seed: 0
+
+filtering:
+  disable: false
+  has_caption: true
+  n_frames: [0, 300]
+  height: [0, 4096]
+  width: [0, 4096]
+  fps: [0, 100]
+
+augmentation:
+  random_flip: null
+  ratio: [1.0, 1.0]
+  scale: [1.0, 1.0]
+
+# Cleaned metadata stores source videos at 75 fps.
+download:
+  override_fps: 75
+
+num_validation_clips: 16
+
+env:
+  training: all
+  validation: all

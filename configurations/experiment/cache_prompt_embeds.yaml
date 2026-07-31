@@ -1,0 +1,35 @@
+# Cache prompt embeddings for a dataset metadata CSV.
+#
+# Intended Droid command shape:
+#   python -m main experiment=cache_prompt_embeds dataset=droid \
+#     algorithm=wan22_forcing_video ckpt_map=default +name=cache_droid_prompt_embeds
+
+defaults:
+  - base_pytorch_exp
+
+tasks: [validation]
+
+training:
+  splits_included: ["training"]
+
+validation:
+  devices: auto
+  strategy: ddp
+  precision: bf16-true
+  batch_size: ${experiment.cache_prompt_embeds.batch_size}
+  dataloader:
+    num_workers: 2
+    shuffle: false
+    pin_memory: true
+  splits_included: ["validation"]
+
+cache_prompt_embeds:
+  input_metadata_path: cleaned_metadata.csv
+  batch_size: 16
+  device: cuda
+  disable_filtering: true
+  prompt_embed_dir: prompt_embeds
+  output_metadata_path: cleaned_metadata_with_prompt_embeds.csv
+  overwrite_existing: false
+  # Limit the input rows for testing distributed process; null processes all rows.
+  max_records: null

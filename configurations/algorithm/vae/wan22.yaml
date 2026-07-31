@@ -1,0 +1,22 @@
+# @package algorithm.vae
+
+cls: wan22_vae
+pretrained_path: ${...algorithm.model_weights.wan.ti2v_2_2_5b.vae_path}
+use_fp16: false
+max_batch_size: null
+
+# Wan2.2-TI2V-5B VAE metadata.
+# Source: VBVR-Wan2.2/diffsynth/configs/model_configs.py.
+z_dim: 48
+stride: [4, 16, 16]
+latent_dim: ${.z_dim}
+downsampling_factor: ${.stride}
+compile: false
+
+pretrained_kwargs:
+  output_shape: "b c t h w"
+  z_dim: ${algorithm.vae.z_dim}
+  dim: 160
+  tiled: true
+  tile_size: [30, 52]
+  tile_stride: [15, 26]

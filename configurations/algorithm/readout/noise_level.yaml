@@ -1,0 +1,32 @@
+# @package algorithm.readout
+
+enabled: true
+
+tap_every: 1
+pooling: mean # mean | attention
+adapter_dim: 256
+num_mlp_layers: 2
+per_layer_adapter: false
+
+mix_layers: true
+mix_method: softmax # softmax | mean | last
+
+target: logit_t # log_t | logit_t | sigmoid_t
+loss: mse # smooth_l1 | mse
+
+eps: 1.0e-5
+readout_loss_weight: 1.0
+only_noise_level: true
+bootstrap_denoiser_from_ema: true
+
+ablation:
+  enabled: false
+  error_metric: null
+  random:
+    enabled: true
+    repeats: 4
+    abs_delta_bins: 21
+  grid:
+    enabled: false
+    repeats: 1
+    values: [0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0]

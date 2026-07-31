@@ -1,0 +1,31 @@
+# @package _global_
+#
+# Wan2.2-TI2V-5B flow-matching single-round inference on DROID.
+# python -m main shortcode=exp/droid/flowf/infer ckpt_map=default +name=droid_fm_infer
+
+defaults:
+  - /shortcode/exp/droid/flowf/train
+  - _self_
+
+load: ${algorithm.model_weights.droid.flowf}
+
+dataset:
+  num_validation_clips: 8
+
+algorithm:
+  denoising:
+    guidance_scale: 1.0
+    history_guidance_scale: 1.0
+  logging:
+    metrics:
+      - fvd
+      - mse
+      - psnr
+      - vbench
+      - ssim
+
+experiment:
+  tasks: [validation]
+  validation:
+    sample_during_training: true
+    limit_batch: null

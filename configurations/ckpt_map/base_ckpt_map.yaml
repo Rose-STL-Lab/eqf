@@ -1,0 +1,31 @@
+# @package _global_
+
+# Canonical checkpoint map. One entry per (dataset, model class).
+# Filled in by environment-specific overrides (e.g. `default.yaml`).
+
+algorithm:
+  model_weights:
+    minecraft:
+      dfot: null
+      flowf: null
+      eqf: null
+      # Variant of eqf trained with truncated lambda=4 schedule (eqm style).
+      eqm_style_trunc_lambda4: null
+      noiselevelpred:
+        eqf: null
+    wan:
+      t2v_1_3b:
+        model_dir: null
+        vae_path: null
+        text_encoder_path: null
+        tokenizer_path: null
+      ti2v_2_2_5b:
+        model_path: null
+        vae_path: null
+        text_encoder_path: null
+        tokenizer_path: null
+
+  vae:
+    pretrained_dir:
+      minecraft: null
+      re10k: null

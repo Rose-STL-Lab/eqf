@@ -1,0 +1,27 @@
+# Important, Be careful when modifying this file! The fields will be overridden by the shortcode config when running the actual experiment.
+# Only change things here for defaults that should be changed across all experiments!
+
+
+defaults:
+  - base_pytorch_exp
+
+tasks: [validation]
+
+training:
+  dataloader:
+    shuffle: False
+  batch_size: 8
+  splits_included: ['training']
+
+validation:
+  precision: 16-true
+  batch_size: 8
+  dataloader:
+    shuffle: False
+  splits_included: ['training']
+  devices: "auto"
+  is_preprocessing_expt: true
+
+test:
+  batch_size: ${experiment.validation.batch_size}
+

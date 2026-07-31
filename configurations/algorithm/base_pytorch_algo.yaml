@@ -1,0 +1,115 @@
+defaults:
+  - base_algo # inherits from configurations/algorithm/base_algo.yaml
+
+lr: ${experiment.training.lr}
+calculate_throughput: ${experiment.calculate_throughput}
+training:
+  lr: ${experiment.training.lr}
+  weight_decay: ${experiment.training.weight_decay}
+  optimizer_beta: ${experiment.training.optim.optimizer_beta}
+  opt_name: ${experiment.training.optim.opt_name}
+  lr_scheduler: ${experiment.training.lr_scheduler}
+  strategy: ${experiment.training.strategy}
+  lr_map: ${experiment.training.lr_map}
+  batch_size: ${experiment.training.batch_size}
+
+validation:
+  strategy: ${experiment.validation.strategy}
+  sample_during_training: ${experiment.validation.sample_during_training}
+  batch_size: ${experiment.validation.batch_size}
+
+compile: False
+load_model_state: null
+model_state_key: "model_state"
+load_opt_state: ${.load_model_state} # default value is the same path of `load_model_state`
+opt_state_key: "optim_state"
+load_model_state_mode: strict
+handlers: null
+
+tasks:
+  prediction:
+    enabled: False
+    sampling_strategy: streaming
+    streaming:
+      schedule: chunk
+      mode: fixed
+      sliding_context_frames: null
+      initial_context_frames: null
+      stride_in_frames: null
+      inner_steps_per_emit: null
+      max_inner_steps: null
+      conditioning_mode: conditional
+      stabilization_level: 0.0
+      stop_based_on: gradnorm
+      emit_eps: 0.0
+      frame_done_eps: 0.0
+      emit_noise_level: 0.0
+      frame_done_noise_level: 0.0
+      should_bake_in: false
+      max_cycles_without_emit: default
+      initial_noise_profile: flat
+      return_streaming_state: false
+
+  reconstruction:
+    enabled: True
+
+# NOTE: the reason why we write logging here in `algorithm` is that we define "Step behavior" in algorithm, not in experiment
+logging:
+  deterministic: 0
+  loss_freq: 100
+  grad_norm_freq: 1000 # this should be smaller than loss_freq; the `log_every_n_steps` when initializing `pl.Trainer` in `base_exp.py` is set to loss_freq, which determines the overall "base" of log freq
+  verbose_grad_info: false
+  max_num_videos: 32 # for each dataloader used in validation
+  n_metrics_frames: null
+  metrics:
+    - fvd
+    - is
+    - fid
+    - lpips
+    - mse
+    - psnr
+    - ssim
+  metrics_batch_size: 8
+  sanity_generation: False # generate video samples during sanity check
+  raw_dir: null
+  log_video_as_images:
+    enable: false
+    indices: null
+    format: pdf
+  log_global_denoising_schedule: false
+  log_frame_nfe: false
+  log_global_readout_noise_level_schedule: false
+  log_global_velocity_schedule: false
+  velocity_log_yscale: false
+  raw_velocity: true
+  loss_bucket_count: 5
+  # W&B config keys to combine into a single grouping string (logged once per run).
+  # Example: ["algorithm._name", "algorithm.denoising.default_eta_multiple"]
+  # Look under group/ to see these two logged together.
+  wandb_config_group_by: ["algorithm._name", "algorithm.denoising.default_eta_multiple"]
+
+checkpoint:
+  reset_optimizer: False
+  strict: True
+
+scheduling_matrix: full_sequence
+external_cond_processing: ${dataset.external_cond_processing}
+
+# Training Noise Configuration
+training_context_frames: 0
+random_length_history:
+  min_history_tokens: 0
+  max_history_tokens: 6
+  clean_history_prob: 0.5
+uniform_future:
+  enabled: false
+fixed_context:
+  enabled: false
+  indices: null # defaults to training_context_frames
+  dropout: 0
+variable_context:
+  enabled: false
+  prob: 0
+  dropout: 0
+
+normalize_depth_with_log: false

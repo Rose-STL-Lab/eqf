@@ -1,0 +1,25 @@
+# @package _global_
+#
+# python -m main shortcode=exp/minecraft/eqf/train_eqf ckpt_map=default +name=minecraft_eqf
+#
+# Main EqF training recipe for Minecraft.
+
+defaults:
+  - model_config/cogv/100m
+  - exp/minecraft/minecraft_base
+  - exp/minecraft/eqf/train_base
+  - override /algorithm: eqf_video
+  - _self_
+
+experiment:
+  devices: 1
+  training:
+    batch_size: 8
+
+  validation:
+    batch_size: 8
+
+algorithm:
+  denoising:
+    equilibrium_lambda: 1.0
+    equilibrium_schedule: constant

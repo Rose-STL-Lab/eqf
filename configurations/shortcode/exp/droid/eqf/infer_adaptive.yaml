@@ -1,0 +1,56 @@
+# @package _global_
+#
+# Canonical public budget-adaptive EqF inference: 13 context + 36 generated frames.
+# python -m main shortcode=exp/droid/eqf/infer_adaptive +name=droid_eqf_budget_adaptive
+
+defaults:
+  - /shortcode/exp/droid/eqf/infer_noiselevel
+  - _self_
+
+dataset:
+  num_validation_clips: 256
+
+algorithm:
+  logging:
+    max_num_videos: 256
+    log_global_denoising_schedule: true
+    log_global_readout_noise_level_schedule: true
+    log_global_velocity_schedule: true
+    log_frame_nfe: true
+  tasks:
+    prediction:
+      streaming:
+        mode: adaptive
+        stop_based_on: readout
+        emit_eps: 0.0
+        frame_done_eps: 0.0
+        emit_noise_level: 1.0
+        frame_done_noise_level: 0.0
+        max_cycles_without_emit: default
+        tail_finish:
+          enabled: true
+          n_cleanup_steps: 50
+          step_multiplier: 1.0
+          disable_momentum: false
+  denoising:
+    history_guidance_scale: 0.0
+    equilibrium_schedule: constant
+    equilibrium_lambda: 1.0
+    sampling_algorithm: ngd
+    mu: 0.1
+    num_sampling_steps: 50
+    inference_schedule:
+      enabled: true
+      family: c_function
+      t_end: 0.001
+      c_function:
+        schedule: truncated
+        truncated_a: 0.8
+      inference_solver_index_source: readout_predicted
+
+experiment:
+  tasks: [validation]
+  validation:
+    precision: bf16
+    sample_during_training: true
+    limit_batch: null

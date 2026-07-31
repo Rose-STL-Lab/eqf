@@ -1,0 +1,29 @@
+# Load dataloader and log a few videos to wandb
+
+defaults:
+  - base_pytorch_exp
+
+tasks: [validation]
+
+training:
+  # Needed because dataset/base_video.yaml interpolates dataset.training_splits from this key.
+  splits_included: ["training"]
+
+validation:
+  batch_size: 8
+  limit_batch: 1.0
+  dataloader:
+    num_workers: 8
+    shuffle: false
+    pin_memory: True
+    prefetch_factor: 2
+  splits_included: ["validation"]
+
+visualize:
+  num_videos: 8
+  max_batches: 8
+  fps: 10
+  normalize: false
+  max_frames: null
+
+

@@ -1,0 +1,27 @@
+# Important: Be careful when modifying this file!
+# RE10K is treated as already normalized to 10 fps.
+# Temporal downsampling is intentionally left out; the loader consumes cached
+# `video_pts` directly instead of reintroducing eqm-video temporal sampling.
+
+defaults:
+  - base_video
+
+name: re10k
+
+save_dir: data/re10k
+resolution: [256, 256] # wan would be [832, 480]
+max_frames: 49
+frame_skip: 1
+
+external_cond_dim: 16
+external_cond_processing: null
+num_validation_clips: 16
+
+latent:
+  type: online
+
+use_depth: false
+poses: true
+
+# in datasets.re10k.py, we assume that all videos are 10 fps in re10k
+fps: 10

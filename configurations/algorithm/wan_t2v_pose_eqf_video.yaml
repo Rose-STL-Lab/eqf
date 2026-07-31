@@ -1,0 +1,4 @@
+defaults:
+  - wan_t2v_pose_forcing_video
+  - override denoising: equilibrium_matching
+  - _self_

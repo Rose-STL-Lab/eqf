@@ -1,0 +1,15 @@
+# @package algorithm.backbone
+
+defaults:
+  - wan
+  - _self_
+
+name: wan_pose
+
+pose_conditioning:
+  enabled: true
+  # RE10K camera conditioning for WAN is built on the WAN latent grid rather
+  # than image-space pixels. This repo assumes the pose-conditioned path is the
+  # WAN-on-RE10K path, so latent H/W is the canonical ray construction space.
+  type: ${algorithm.camera_pose_conditioning.type}
+  dropout_prob: ${algorithm.camera_pose_conditioning.dropout_prob}

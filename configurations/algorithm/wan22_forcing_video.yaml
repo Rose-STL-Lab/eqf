@@ -1,0 +1,64 @@
+# Important, Be careful when modifying this file! The fields will be overridden by shortcode configs.
+# Only change things here for defaults that should be changed across Wan2.2 forcing experiments.
+
+defaults:
+  - denoising_video
+  - override denoising: flow_matching
+  - override backbone: wan22_ti2v_5b
+  - override vae: wan22
+  - _self_
+
+load_prompt_embed: false
+text_embed_dropout_prob: 0.0
+# Cached T5 embedding of the empty/null caption "". Used for text-embedding
+# dropout (CFG training) and the unconditional branch of guided sampling.
+null_prompt_embed_path: null
+# When true, skip the T5 text encoder and use `null_prompt_embed_path` for
+# every sample (e.g. RE10K, whose captions are empty strings).
+force_null_prompt: false
+
+prompt_inference:
+  n_frames: 121
+  height: 704
+  width: 1248
+  num_train_timesteps: 1000
+  sample_steps: 50
+  sample_shift: 5.0
+  lang_guidance: 5.0
+
+prompt_validation:
+  enabled: false
+  batch_idx: 0
+  dataloader_idx: 0
+  batch_size: 1
+  raw_dir: null
+  prompts:
+    - "Two adorable orange cats wearing boxing gloves fight in a boxing ring."
+
+# Wan2.2-TI2V-5B text-only training defaults.
+# Sources:
+# - VBVR-Wan2.2/diffsynth/configs/model_configs.py
+# - VBVR-Wan2.2/examples/wanvideo/model_training/validate_full/Wan2.2-TI2V-5B.py
+model_dtype: bfloat16
+gradient_checkpointing_rate: 0.0
+
+text_encoder:
+  text_len: 512
+  text_dim: 4096
+  compile: false
+  load_to_gpu: false
+  dtype: bfloat16
+  name: ${algorithm.model_weights.wan.ti2v_2_2_5b.tokenizer_path}
+  pretrained_ckpt_path: ${algorithm.model_weights.wan.ti2v_2_2_5b.text_encoder_path}
+
+model:
+  pretrained_ckpt_path: ${algorithm.model_weights.wan.ti2v_2_2_5b.model_path}
+  compile: false
+
+model_state_key: state_dict
+
+denoising:
+  num_sampling_steps: 50
+
+logging:
+  fps: 15

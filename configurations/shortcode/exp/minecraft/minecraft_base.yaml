@@ -1,0 +1,106 @@
+# @package _global_
+
+defaults:
+  - override /algorithm/vae: image_vae_minecraft
+
+  - override /dataset: minecraft
+
+dataset:
+  max_frames: 50
+  n_frames: 100
+  num_validation_clips: 16
+  # Encode with the released ImageVAE during training by default. After running
+  # the optional preprocessing recipe, set this to pre_sample for faster input.
+  latent:
+    type: online
+
+algorithm:
+  training_context_frames: 0
+  backbone:
+    forward_window_size: 50
+  tasks:
+    prediction:
+      streaming:
+        schedule: overlap # full_sequence, chunk, overlap, rolling
+        should_bake_in: true
+        mode: fixed # fixed, adaptive
+        sliding_context_frames: 25 # validation sliding context (frames); null -> half forward window
+        initial_context_frames: 25 # validation initial context (frames); null -> sliding_context_frames
+        stride_in_frames: 5 # frames emitted per commit; null -> validation_horizon_tokens (token-space) for chunk/full_sequence, else 1 token
+        inner_steps_per_emit: null # fixed mode; null -> aligned default ~= num_sampling_steps * stride_in_tokens / validation_horizon_tokens
+        max_inner_steps: null # adaptive mode budget; null -> max(N-1, inner_steps_per_emit)
+        conditioning_mode: conditional # conditional or stabilized_conditional
+        stabilization_level: 0.0 # only used when conditioning_mode=stabilized_conditional
+        max_cycles_without_emit: default # max number of inner loops allowed between emitting a prefix
+        initial_noise_profile: flat # flat, pyramid
+  logging:
+    log_global_denoising_schedule: true
+    log_frame_nfe: true
+    log_global_readout_noise_level_schedule: false
+    log_global_velocity_schedule: true
+    velocity_log_yscale: true
+    raw_velocity: true
+    loss_bucket_count: 5
+
+experiment:
+  devices: "auto"
+  training:
+    batch_size: 32
+    lr: 2e-4
+    strategy: ddp #deepspeed_stage_2
+    precision: bf16 # must use this if deepspeed_stage_2
+    dataloader:
+      num_workers: 8
+      shuffle: True
+
+    max_epochs: -1
+
+    checkpointing:
+      every_n_train_steps: 5000
+      every_n_epochs: null
+      save_on_train_epoch_end: false
+      enable_version_counter: false
+      monitor: validation/loss
+      mode: min
+      save_top_k: 1
+      save_last: true
+      filename: best_loss
+      auto_insert_metric_name: false
+
+    additional_checkpointing:
+      - monitor: prediction/fvd
+        mode: min
+        save_top_k: 1
+        save_last: false
+        save_on_train_epoch_end: false
+        every_n_train_steps: 5000
+        every_n_epochs: null
+        enable_version_counter: false
+        filename: best_fvd
+        auto_insert_metric_name: false
+    optim:
+      optimizer_beta: [0.9, 0.99]
+      gradient_clip_val: 1.0
+    weight_decay: 1e-3
+    lr_scheduler:
+      name: constant_with_warmup
+      num_warmup_steps: 2000
+
+    compile: ${algorithm.compile}
+    splits_included: ['training']
+
+  validation:
+    batch_size: 8
+    precision: 32
+    val_every_n_step: 2500 # if set to float, then it means [0.0, 1.0] fraction of training steps; otherwise, it means fixed number of training steps
+    val_every_n_epoch: null
+    limit_batch: 1.0
+    dataloader:
+      num_workers: 2
+      shuffle: false
+
+    num_sanity_val_steps: 1
+    splits_included: ['validation']
+    sample_during_training: true
+
+  find_unused_parameters: false

@@ -1,0 +1,53 @@
+# @package _global_
+#
+# Canonical public EqF inference: 250 steps, 300 frames, 256 videos.
+# python -m main shortcode=exp/minecraft/eqf/infer ckpt_map=default +name=minecraft_eqf_infer
+
+defaults:
+  - /shortcode/model_config/cogv/100m
+  - /shortcode/exp/minecraft/minecraft_base
+  - override /algorithm: eqf_video
+  - _self_
+
+dataset:
+  max_frames: 300
+  n_frames: 300
+  num_validation_clips: 256
+
+experiment:
+  tasks: [validation]
+  devices: "auto"
+  validation:
+    precision: 16
+    batch_size: 8
+    dataloader:
+      shuffle: false
+    sample_during_training: true
+
+algorithm:
+  backbone:
+    forward_window_size: 50
+  tasks:
+    prediction:
+      streaming:
+        mode: fixed
+        sliding_context_frames: 25
+        initial_context_frames: 25
+        stride_in_frames: 1
+  denoising:
+    equilibrium_lambda: 1.0
+    equilibrium_schedule: constant
+    sampling_algorithm: gd
+    num_sampling_steps: 250
+    default_eta_multiple: 1.0
+    mu: 0.0
+    inference_schedule:
+      enabled: true
+      family: c_function
+      t_end: 0.001
+      c_function:
+        schedule: truncated
+        truncated_a: 0.8
+      inference_solver_index_source: schedule
+
+load: ${algorithm.model_weights.minecraft.eqf}

@@ -1,0 +1,28 @@
+# @package algorithm.backbone
+
+in_channels: ${..vae.latent_dim}
+out_channels: ${..vae.latent_dim}
+external_cond_dim: ${...dataset.external_cond_dim} 
+
+
+temporal_compression_ratio: ${..vae.downsampling_factor[0]}
+
+# If true, treat temporal compression math as "causal-like" for token accounting / embeddings,
+# even when using a non-causal VideoVAE (e.g., non-causal VAE with padding).
+does_vae_act_causal: false
+
+# `forward_window_size` is the local model window size in frame-space.
+# 
+# - During training:
+#     The model trains on `forward_window_size` frames, with
+#     `training_context_frames` (algorithm config) used as context and the
+#     remaining frames as the training horizon.
+#
+# - During inference:
+#     Keep this equal to the training window size.
+#     Validation streaming then splits this window into
+#     `sliding_context_frames` + validation horizon.
+
+forward_window_size: ${...dataset.max_frames} 
+
+use_depth: ${...dataset.use_depth}

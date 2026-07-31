@@ -1,0 +1,30 @@
+# @package algorithm.vae
+
+cls: wan_vae
+# Official Wan VAE checkpoint path for the T2V-1.3B family.
+# Source: `Wan2.1/wan/configs/wan_t2v_1_3B.py` (`vae_checkpoint`).
+# Keep this aligned with the pretrained Wan checkpoint family.
+pretrained_path: ${...algorithm.model_weights.wan.t2v_1_3b.vae_path}
+use_fp16: false
+max_batch_size: null
+
+# Official Wan VAE latent metadata.
+# Sources:
+# - `Wan2.1/wan/configs/wan_t2v_1_3B.py` for `z_dim`/`stride`
+# - `Wan2.1/wan/modules/vae.py` for `mean`/`std`
+# These values are part of the pretrained VAE interface; do not change them when
+# using the official Wan2.1-T2V-1.3B VAE weights.
+z_dim: 16
+stride: [4, 8, 8]
+latent_dim: ${.z_dim}
+downsampling_factor: ${.stride}
+compile: false
+
+mean: [-0.7571, -0.7089, -0.9113, 0.1075, -0.1745, 0.9653, -0.1517, 1.5508, 0.4134, -0.0715, 0.5517, -0.3632, -0.1922, -0.9497, 0.2503, -0.2921]
+std: [2.8184, 1.4541, 2.3275, 2.6558, 1.2196, 1.7708, 2.6052, 2.0743, 3.2687, 2.1526, 2.8652, 1.5579, 1.6382, 1.1253, 2.8251, 1.9160]
+
+pretrained_kwargs:
+  output_shape: "b c t h w"
+  z_dim: ${algorithm.vae.z_dim}
+  mean: ${algorithm.vae.mean}
+  std: ${algorithm.vae.std}

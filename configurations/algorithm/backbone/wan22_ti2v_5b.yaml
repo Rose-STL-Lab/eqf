@@ -1,0 +1,33 @@
+# @package algorithm.backbone
+
+defaults:
+  - base
+
+name: wan22_ti2v_5b
+model_type: wan
+model_family: wan22
+model_variant: ti2v_5b_text
+
+# Wan2.2-TI2V-5B diffusion transformer metadata.
+# Source: VBVR-Wan2.2/diffsynth/configs/model_configs.py
+# model_hash: 1f5ab7703c6fc803fdded85ff040c316.
+in_channels: ${..vae.z_dim}
+out_channels: ${..vae.z_dim}
+has_image_input: false
+patch_size: [1, 2, 2]
+dim: 3072
+ffn_dim: 14336
+freq_dim: 256
+text_dim: ${...algorithm.text_encoder.text_dim}
+num_heads: 24
+num_layers: 30
+eps: 1.0e-6
+seperated_timestep: true
+require_clip_embedding: false
+require_vae_embedding: false
+fuse_vae_embedding_in_latents: true
+
+external_cond_dim: 0
+temporal_compression_ratio: ${..vae.stride[0]}
+does_vae_act_causal: true
+forward_window_size: ${...algorithm.n_frames}

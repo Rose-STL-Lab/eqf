@@ -1,0 +1,54 @@
+# @package _global_
+#
+# Canonical public EqF inference: 37 context + 152 generated = 189 frames.
+# python -m main shortcode=exp/re10k/eqf/infer ckpt_map=default +name=re10k_eqf_infer
+
+defaults:
+  - /shortcode/exp/re10k/base
+  - override /algorithm: wan_t2v_pose_eqf_video
+  - _self_
+
+dataset:
+  max_frames: 189
+  n_frames: 189
+  num_validation_clips: 256
+
+experiment:
+  tasks: [validation]
+  devices: 1
+  validation:
+    batch_size: 16
+    precision: bf16
+    sample_during_training: true
+    dataloader:
+      shuffle: false
+
+algorithm:
+  gradient_checkpointing_rate: 0.0
+  backbone:
+    forward_window_size: 49
+  tasks:
+    prediction:
+      streaming:
+        schedule: chunk
+        should_bake_in: false
+        mode: fixed
+        sliding_context_frames: 37
+        initial_context_frames: 37
+        stride_in_frames: 12
+  denoising:
+    equilibrium_schedule: constant
+    equilibrium_lambda: 1.0
+    sampling_algorithm: gd
+    mu: 0.0
+    num_sampling_steps: 50
+    inference_schedule:
+      enabled: true
+      family: c_function
+      t_end: 0.001
+      c_function:
+        schedule: truncated
+        truncated_a: 0.8
+      inference_solver_index_source: schedule
+
+load: ${algorithm.model_weights.re10k.eqf}

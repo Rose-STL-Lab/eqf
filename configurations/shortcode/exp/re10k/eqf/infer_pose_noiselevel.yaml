@@ -1,0 +1,38 @@
+# @package _global_
+#
+# python -m main shortcode=exp/re10k/eqf/infer_pose_noiselevel ckpt_map=default +name=re10k_nlp_eqf_pose_infer
+
+defaults:
+  - /shortcode/exp/re10k/base
+  - override /algorithm: wan_pose_noiselevelpred_eqf_video
+  - _self_
+
+experiment:
+  tasks: [validation]
+  devices: 1
+
+  validation:
+    batch_size: 16
+    dataloader:
+      shuffle: false
+    sample_during_training: true
+    precision: bf16
+
+algorithm:
+  logging:
+    inference_step_to_noise_level_thresholds: [0.5, 0.3, 0.1, 0.05, 0.01]
+    log_global_readout_noise_level_schedule: true
+  tasks:
+    prediction:
+      streaming:
+        emit_eps: 0.0
+        frame_done_eps: 0.0
+        stop_based_on: gradnorm
+        emit_noise_level: 0.0
+        frame_done_noise_level: 0.0
+        max_cycles_without_emit: default
+  denoising:
+    inference_schedule:
+      inference_solver_index_source: readout_predicted
+
+load: ${algorithm.model_weights.re10k.eqf_noiselevelpred}

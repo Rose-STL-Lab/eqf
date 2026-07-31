@@ -1,0 +1,36 @@
+# @package _global_
+
+# python -m main shortcode=exp/minecraft/flowf/infer +name=infer_flowf_minecraft
+
+
+defaults:
+  # model config such as size and inference params
+  - model_config/cogv/100m
+
+  # Shared across models for a particular dataset
+  - exp/minecraft/minecraft_base
+
+  - _self_
+
+
+dataset:
+  max_frames: 300
+  n_frames: 300
+  num_validation_clips: 32
+
+experiment:
+  tasks: ['validation']
+  devices: "auto"
+
+  validation:
+    precision: 16
+    batch_size: 8
+    dataloader:
+      shuffle: false
+    sample_during_training: true
+
+algorithm:
+  denoising:
+    num_sampling_steps: 250
+
+load: ${algorithm.model_weights.minecraft.flowf}

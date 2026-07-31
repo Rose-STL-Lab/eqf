@@ -1,0 +1,11 @@
+# @package algorithm.vae
+
+pretrained_kwargs: {}
+temporal_downsample: 1 # means Image VAE
+use_fp16: false
+load_ckpt: null # reinitialize the model, (deprecated)
+
+# Max number of items to pass through VAE encode/decode in one call.
+# Interpreted as max (B * T_chunk) for tensors shaped (B, T, ...).
+# null/0 disables chunking.
+max_batch_size: 50

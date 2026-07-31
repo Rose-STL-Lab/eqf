@@ -1,0 +1,18 @@
+# @package _global_
+#
+# Canonical public NLP-EqF NAG inference: 250 steps, 300 frames, 256 videos.
+# python -m main shortcode=exp/minecraft/eqf/infer_nag ckpt_map=default +name=minecraft_nlp_eqf_nag_infer
+
+defaults:
+  - /shortcode/exp/minecraft/eqf/infer
+  - override /algorithm: noiselevelpred_eqf_video
+  - _self_
+
+algorithm:
+  denoising:
+    sampling_algorithm: ngd
+    mu: 0.3
+    inference_schedule:
+      inference_solver_index_source: readout_predicted
+
+load: ${algorithm.model_weights.minecraft.noiselevelpred.eqf}

@@ -1,0 +1,57 @@
+# @package _global_
+#
+# Wan2.2-TI2V-5B NLP-EqF readout-only finetuning on DROID.
+# python -m main shortcode=exp/droid/eqf/train_noiselevel ckpt_map=default +name=droid_nlp_eqf
+
+defaults:
+  - /shortcode/exp/droid/eqf/train
+  - override /algorithm: wan22_noiselevelpred_eqf_video
+  - _self_
+
+# Start from the trained DROID EqF checkpoint. The frozen denoiser is
+# bootstrapped from its EMA weights.
+resume: null
+load: ${algorithm.model_weights.droid.eqf}
+requeue: null
+
+algorithm:
+  backbone:
+    trainable_params: []
+
+  logging:
+    log_global_readout_noise_level_schedule: false
+    metrics: []
+
+  load_model_state: null
+  model_state_key: "state_dict"
+  load_model_state_mode: strict
+
+  load_opt_state: null
+  opt_state_key: "optim_state"
+
+  checkpoint:
+    strict: false
+    reset_optimizer: true
+
+experiment:
+  tasks: [training]
+  training:
+    # `load=` performs a full Lightning resume, so global_step continues from
+    # the base EqF checkpoint (~60k). max_steps is absolute: 70k gives roughly
+    # 10k readout-only steps after optimizer and scheduler state are reset.
+    batch_size: 1
+    max_steps: 70000
+    precision: bf16-mixed
+    lr: 5e-4
+    optim:
+      accumulate_grad_batches: 4
+    checkpointing:
+      every_n_train_steps: 1000
+    dataloader:
+      num_workers: 1
+  validation:
+    sample_during_training: false
+    batch_size: 1
+    val_every_n_step: 1000
+    dataloader:
+      num_workers: 1

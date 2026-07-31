@@ -1,0 +1,63 @@
+# Important, Be careful when modifying this file! The fields will be overridden by the shortcode config when running the actual experiment.
+# Only change things here for defaults that should be changed across all experiments!
+
+defaults:
+  - denoising_video
+  - override denoising: flow_matching
+  - override backbone: wan
+  - override vae: wan
+  - _self_
+
+load_prompt_embed: false
+text_embed_dropout_prob: 0.0
+# Cached T5 embedding of the empty/null caption "". Used for text-embedding
+# dropout (CFG training) and the unconditional branch of guided sampling.
+null_prompt_embed_path: null
+# When true, skip the T5 text encoder and use `null_prompt_embed_path` for
+# every sample (e.g. RE10K, whose captions are empty strings).
+force_null_prompt: false
+
+prompt_inference:
+  n_frames: 81
+  height: 480
+  width: 832
+  num_train_timesteps: 1000
+  sample_solver: unipc
+  sample_steps: 50
+  sample_shift: 5.0
+  lang_guidance: 5.0
+
+# Official Wan shared-config metadata.
+# Source: `Wan2.1/wan/configs/shared_config.py`.
+# Keep these aligned with the pretrained Wan checkpoint family.
+model_dtype: bfloat16
+gradient_checkpointing_rate: 0.0
+
+text_encoder:
+  # Official Wan text-encoder interface metadata.
+  # Sources:
+  # - `Wan2.1/wan/configs/shared_config.py` for `text_len`
+  # - `Wan2.1/wan/modules/model.py` for `text_dim`
+  # - `Wan2.1/wan/configs/shared_config.py` / `wan_t2v_1_3B.py` for bf16 UMT5 usage
+  # These should remain aligned with the official pretrained T2V-1.3B stack.
+  text_len: 512
+  text_dim: 4096
+  compile: false
+  load_to_gpu: false
+  dtype: bfloat16
+  name: ${algorithm.model_weights.wan.t2v_1_3b.tokenizer_path}
+  pretrained_ckpt_path: ${algorithm.model_weights.wan.t2v_1_3b.text_encoder_path}
+
+model:
+  # Official Wan pretrained backbone location. This should point at the matching
+  # Wan2.1-T2V-1.3B checkpoint family for the architecture declared in `backbone/wan.yaml`.
+  pretrained_ckpt_path: ${algorithm.model_weights.wan.t2v_1_3b.model_dir}
+  compile: false
+
+model_state_key: state_dict
+
+denoising:
+  num_sampling_steps: 50
+
+logging:
+  fps: 16

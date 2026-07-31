@@ -1,0 +1,16 @@
+defaults:
+  - wan_forcing_video
+  - override backbone: wan_pose
+  - _self_
+
+camera_pose_conditioning:
+  normalize_by: first
+  bound: null
+  type: ray_encoding
+  downsample_technique: first
+  dropout_prob: 0.1
+
+# RE10K pose captions are empty strings, so use the shared null-caption T5
+# embedding (from ckpt_map `algorithm.null_prompt_embed_path`) for every sample
+# and skip loading the full T5 encoder.
+force_null_prompt: true

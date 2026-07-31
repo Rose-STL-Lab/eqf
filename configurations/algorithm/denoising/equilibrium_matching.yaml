@@ -1,0 +1,60 @@
+# @package algorithm.denoising
+
+# above line is so that values still land at algorithm.denoising when this file is included
+strategy: diffusion-forcing
+
+is_continuous: true
+
+
+# denoising learning objective
+mean_type: velocity # start_x, velocity
+loss_type: velocity # start_x, velocity
+
+equilibrium_schedule: constant # truncated, constant
+truncated_a: null
+equilibrium_lambda: 1.0
+noise_schedule: linear
+noise_abs_max: 20
+
+# loss weighting
+loss_weighting:
+  strategy: none
+
+use_causal_mask: false
+
+sampling_algorithm: gd # gd, lgd, ngd
+num_sampling_steps: 100
+num_noise_levels: 1000 # keep to rescale model input
+guidance_scale: 0.0
+history_guidance_scale: 0.0   # 0 disables; >1 amplifies how strongly the model follows clean history
+
+# the following are only active for gd/ngd 
+default_eta_multiple: 1.0 # user-facing eta multiplier (1.0 means "default")
+use_lambda_divisor: true # option that divides the default lambda
+mu: 0.0
+force_show_k_type: fixed # random, fixed, true_noise_level
+force_show_k: 0.0
+
+scheduling_matrix: full_sequence
+clip_noise: 20.0
+
+inference_schedule:
+  enabled: false
+  family: identity # identity, sd3, linear_logsnr, c_function
+  t_end: 0.001
+  dense_points: 4096
+  sd3:
+    r: 6.0
+  # Linear in log-SNR (rectified-flow convention lambda(k) = 2 log((1-k)/k)).
+  # Solver index n in [0, N] places lambda_n on a uniform grid:
+  #   lambda_n = lambda_max + (n / N) * (lambda_min - lambda_max) + shift.
+  # lambda_max sits at the data side (n=0, small k); lambda_min at the noise
+  # side (n=N, large k). Requires lambda_max > lambda_min.
+  linear_logsnr:
+    lambda_max: 15.0
+    lambda_min: -15.0
+    shift: 0.0
+  c_function:
+    schedule: linear # linear, truncated, constant
+    truncated_a: 0.8
+  inference_solver_index_source: schedule # schedule, readout_predicted (EqF only)

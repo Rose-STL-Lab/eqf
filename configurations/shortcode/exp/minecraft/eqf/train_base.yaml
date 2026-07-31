@@ -1,0 +1,41 @@
+# @package _global_
+
+# Intended to have all sampling level or otherwise shared eqf-only training time parameters
+
+
+dataset:
+  max_frames: 50
+  n_frames: 150
+  num_validation_clips: 16
+
+algorithm:
+  tasks:
+    prediction:
+      streaming:
+        sliding_context_frames: 25
+        initial_context_frames: 25
+        stride_in_frames: 1
+        emit_eps: 0.0 # adaptive: block residual threshold
+        frame_done_eps: 0.0 # adaptive: per-frame freeze threshold
+        stop_based_on: gradnorm # gradnorm or readout
+        emit_noise_level: 0.0 # adaptive readout: block noise level threshold
+        frame_done_noise_level: 0.0 # adaptive readout: per-frame freeze threshold
+        max_cycles_without_emit: default # max number of inner loops allowed between emitting a prefix
+  denoising:
+    equilibrium_lambda: 1.0
+    equilibrium_schedule: constant
+    sampling_algorithm: gd # gd, ngd
+    num_sampling_steps: 250
+    default_eta_multiple: 1.0
+    mu: 0.0
+    inference_schedule:
+      enabled: true
+      family: sd3 # identity, sd3, linear_logsnr, c_function
+      t_end: 0.001
+      sd3:
+        r: 3.0
+      c_function:
+        schedule: constant # linear, truncated, constant
+        truncated_a: 0.8
+      inference_solver_index_source: schedule # schedule, readout_predicted
+

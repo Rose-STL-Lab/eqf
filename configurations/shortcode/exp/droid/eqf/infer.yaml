@@ -1,0 +1,31 @@
+# @package _global_
+#
+# Wan2.2-TI2V-5B EqF single-round inference on DROID.
+# python -m main shortcode=exp/droid/eqf/infer ckpt_map=default +name=droid_eqf_infer
+
+defaults:
+  - /shortcode/exp/droid/eqf/train
+  - _self_
+
+load: ${algorithm.model_weights.droid.eqf}
+
+dataset:
+  num_validation_clips: 8
+
+algorithm:
+  denoising:
+    guidance_scale: 1.0
+    history_guidance_scale: 1.0
+  logging:
+    metrics:
+      - fvd
+      - mse
+      - psnr
+      - vbench
+      - ssim
+
+experiment:
+  tasks: [validation]
+  validation:
+    sample_during_training: true
+    limit_batch: null

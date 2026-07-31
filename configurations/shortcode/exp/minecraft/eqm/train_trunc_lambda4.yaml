@@ -1,0 +1,24 @@
+# @package _global_
+#
+# python -m main shortcode=exp/minecraft/eqm/train_trunc_lambda4 ckpt_map=default +name=minecraft_eqm
+
+defaults:
+  - model_config/cogv/100m
+  - exp/minecraft/minecraft_base
+  - exp/minecraft/eqm/train_base
+  - override /algorithm: eqf_video
+  - _self_
+
+algorithm:
+  denoising:
+    equilibrium_schedule: truncated
+    truncated_a: 0.8
+    equilibrium_lambda: 4.0
+
+experiment:
+  devices: 1
+  training:
+    batch_size: 8
+
+  validation:
+    batch_size: 8

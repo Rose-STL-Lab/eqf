@@ -1,0 +1,18 @@
+# @package _global_
+#
+# Canonical public NLP-EqF NAG inference: 50 steps, 37 context + 152 generated frames.
+# python -m main shortcode=exp/re10k/eqf/infer_nag ckpt_map=default +name=re10k_nlp_eqf_nag_infer
+
+defaults:
+  - /shortcode/exp/re10k/eqf/infer
+  - override /algorithm: wan_pose_noiselevelpred_eqf_video
+  - _self_
+
+algorithm:
+  denoising:
+    sampling_algorithm: ngd
+    mu: 0.1
+    inference_schedule:
+      inference_solver_index_source: readout_predicted
+
+load: ${algorithm.model_weights.re10k.eqf_noiselevelpred}

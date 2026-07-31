@@ -1,0 +1,51 @@
+# @package _global_
+#
+# python -m main shortcode=exp/re10k/eqf/train_pose_noiselevel ckpt_map=default +name=re10k_nlp_eqf load=/path/to/re10k_eqf.ckpt
+
+defaults:
+  - /shortcode/exp/re10k/base
+  - override /algorithm: wan_pose_noiselevelpred_eqf_video
+  - _self_
+
+resume: null
+load: null
+requeue: null
+
+experiment:
+  tasks: [training]
+  devices: 2
+
+  training:
+    batch_size: 4
+    max_steps: 150000
+
+  validation:
+    batch_size: 4
+
+algorithm:
+  backbone:
+    trainable_params: [] # does nothing for WAN, actual behavior is driven by _freeze_denoising_model()
+
+  logging:
+    log_global_readout_noise_level_schedule: false
+
+  load_model_state: null
+  model_state_key: "state_dict"
+  load_model_state_mode: strict
+
+  load_opt_state: null
+  opt_state_key: "optim_state"
+
+  checkpoint:
+    strict: false
+    reset_optimizer: true
+
+  tasks:
+    prediction:
+      streaming:
+        emit_eps: 0.0
+        frame_done_eps: 0.0
+        stop_based_on: gradnorm
+        emit_noise_level: 0.0
+        frame_done_noise_level: 0.0
+        max_cycles_without_emit: default

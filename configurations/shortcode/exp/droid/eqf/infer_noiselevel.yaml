@@ -1,0 +1,32 @@
+# @package _global_
+#
+# Wan2.2-TI2V-5B NLP-EqF single-round inference on DROID.
+# python -m main shortcode=exp/droid/eqf/infer_noiselevel ckpt_map=default +name=droid_nlp_eqf_infer
+
+defaults:
+  - /shortcode/exp/droid/eqf/train
+  - override /algorithm: wan22_noiselevelpred_eqf_video
+  - _self_
+
+load: ${algorithm.model_weights.droid.noiselevelpred.eqf}
+
+dataset:
+  num_validation_clips: 8
+
+algorithm:
+  denoising:
+    guidance_scale: 1.0
+    history_guidance_scale: 1.0
+  logging:
+    metrics:
+      - fvd
+      - mse
+      - psnr
+      - vbench
+      - ssim
+
+experiment:
+  tasks: [validation]
+  validation:
+    sample_during_training: true
+    limit_batch: null

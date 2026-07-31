@@ -1,0 +1,26 @@
+# @package algorithm.vae
+
+defaults:
+  - base_vae
+
+cls: image_vae
+
+pretrained_path: ${algorithm.vae.pretrained_dir.minecraft}
+
+use_fp16: false
+
+# Latent channels for Stable-Diffusion-style ImageVAE
+latent_dim: 4
+
+# No temporal downsampling; spatial factor 8 (256 -> 32) for this VAE family.
+downsampling_factor: [1, 8]
+
+pretrained_kwargs:
+  # Unused by ImageVAE, but required by eqf VAEMixin interface.
+  output_shape: "b c h w"
+  # Latent normalization stats (from diffusion-forcing-transformer `dataset/minecraft.yaml:data_mean/std`)
+  latent_mean: [0.557, 0.222, 0.416, -0.847]
+  latent_std: [4.268, 4.953, 5.722, 7.336]
+
+
+

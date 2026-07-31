@@ -1,0 +1,8 @@
+defaults:
+  - base_pytorch_algo
+  - vae: image_vae_minecraft
+  - _self_
+
+logging:
+  max_video_length: 100
+  every_n_batch: 1000

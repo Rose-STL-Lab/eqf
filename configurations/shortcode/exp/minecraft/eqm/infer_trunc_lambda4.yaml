@@ -1,0 +1,54 @@
+# @package _global_
+#
+# python -m main shortcode=exp/minecraft/eqm/infer_trunc_lambda4 ckpt_map=default +name=minecraft_eqm_infer
+
+defaults:
+  - model_config/cogv/100m
+  - exp/minecraft/minecraft_base
+  - override /algorithm: eqf_video
+  - _self_
+
+dataset:
+  max_frames: 300
+  n_frames: 300
+  num_validation_clips: 32
+
+experiment:
+  tasks: ['validation']
+  devices: "auto"
+
+  validation:
+    precision: 16
+    batch_size: 8
+    dataloader:
+      shuffle: false
+    sample_during_training: true
+
+algorithm:
+  tasks:
+    prediction:
+      streaming:
+        sliding_context_frames: 25
+        initial_context_frames: 25
+        stride_in_frames: 1
+        emit_eps: 0.0 # adaptive: block residual threshold
+        frame_done_eps: 0.0 # adaptive: per-frame freeze threshold
+        stop_based_on: gradnorm # gradnorm or readout
+        emit_noise_level: 0.0 # adaptive readout: block noise level threshold
+        frame_done_noise_level: 0.0 # adaptive readout: per-frame freeze threshold
+        max_cycles_without_emit: default # max number of inner loops allowed between emitting a prefix
+  denoising:
+    equilibrium_lambda: 4.0
+    equilibrium_schedule: truncated
+    truncated_a: 0.8
+    sampling_algorithm: gd # gd, ngd
+    num_sampling_steps: 250
+    # The implementation normalizes eta by equilibrium_lambda before applying
+    # default_eta_multiple. EqM uses lambda=4 and the original EqM settings are
+    # recovered with this multiplier.
+    default_eta_multiple: 1.7
+    mu: 0.0
+    inference_schedule:
+      enabled: false
+
+load: ${algorithm.model_weights.minecraft.eqm_style_trunc_lambda4}

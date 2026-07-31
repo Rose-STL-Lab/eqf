@@ -1,0 +1,13 @@
+# Important, Be careful when modifying this file! The fields will be overridden by shortcode configs.
+# Only change things here for defaults that should be changed across Wan2.2 EqF experiments.
+
+defaults:
+  - wan22_forcing_video
+  - override denoising: equilibrium_matching
+  - _self_
+
+denoising:
+  # Re-pin Wan2.2 sampling count after the EqF denoising-group override.
+  # Source inference setting: VBVR-Wan2.2/examples/wanvideo/model_inference/Wan2.2-TI2V-5B.py.
+  num_sampling_steps: 50
+  sampling_algorithm: gd

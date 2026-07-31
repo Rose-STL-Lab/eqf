@@ -1,0 +1,19 @@
+# @package _global_
+#
+# python -m main shortcode=exp/re10k/eqf/train_pose ckpt_map=default +name=re10k_eqf
+
+defaults:
+  - /shortcode/exp/re10k/base
+  - override /algorithm: wan_t2v_pose_eqf_video
+  - _self_
+
+experiment:
+  tasks: [training]
+  devices: 2
+
+  training:
+    batch_size: 4
+    max_steps: 150000
+
+  validation:
+    batch_size: 4

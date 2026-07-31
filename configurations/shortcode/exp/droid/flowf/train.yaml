@@ -1,0 +1,55 @@
+# @package _global_
+#
+# Wan2.2-TI2V-5B flow-matching finetuning on DROID.
+# python -m main shortcode=exp/droid/flowf/train ckpt_map=default +name=droid_fm
+
+defaults:
+  - /shortcode/exp/droid/droid_base
+  - override /algorithm: wan22_forcing_video
+  - override /dataset: droid
+  - _self_
+
+dataset:
+  metadata_path: cleaned_metadata_with_prompt_embeds.csv
+  load_prompt_embed: true
+  resolution: [640, 384]
+  max_frames: 49
+  n_frames: 49
+  num_validation_clips: 4
+  latent:
+    type: online
+
+algorithm:
+  load_prompt_embed: true
+  text_embed_dropout_prob: 0.1
+  noise_level: random_length_history
+  random_length_history:
+    min_history_tokens: 0
+    max_history_tokens: 6
+    clean_history_prob: 0.5
+  denoising:
+    guidance_scale: 0.0
+  prompt_validation:
+    enabled: false
+  backbone:
+    forward_window_size: ${...algorithm.n_frames}
+
+experiment:
+  tasks: [training]
+  training:
+    batch_size: 1
+    max_steps: 60000
+    precision: bf16-mixed
+    lr: 1e-5
+    optim:
+      accumulate_grad_batches: 4
+    checkpointing:
+      every_n_train_steps: 5000
+    dataloader:
+      num_workers: 1
+  validation:
+    sample_during_training: true
+    batch_size: 1
+    val_every_n_step: 5000
+    dataloader:
+      num_workers: 1

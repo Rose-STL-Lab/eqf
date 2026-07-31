@@ -1,0 +1,86 @@
+# @package _global_
+
+# python -m main shortcode=exp/minecraft/eqf/infer_noiselevel_tail_finish +name=tail_finish_eqf_minecraft wandb.mode=online
+
+# Deterministic finishing-tail early stop on top of standard sliding-inference.
+# Trigger reuses the existing readout-based per-block stopping condition
+# (`emit_noise_level`); once a stride-aligned prefix block is fully below the
+# threshold, we run n_cleanup_steps extra inner steps (closed-loop: re-readout
+# each step, re-spread descent uniformly, momentum off) on those tokens to drive
+# their k cleanly to 0 before emitting.
+
+
+defaults:
+  - model_config/cogv/100m
+
+  - exp/minecraft/minecraft_base
+
+  - _self_
+  - override /algorithm: noiselevelpred_eqf_video
+
+
+dataset:
+  max_frames: 300
+  n_frames: 300
+  num_validation_clips: 32
+
+experiment:
+  tasks: ['validation']
+  devices: "auto"
+
+  validation:
+    precision: 16
+    batch_size: 8
+    dataloader:
+      shuffle: false
+    sample_during_training: true
+
+
+algorithm:
+  logging:
+    inference_step_to_noise_level_thresholds: [0.5, 0.3, 0.1, 0.05, 0.01]
+    log_global_readout_noise_level_schedule: true
+    log_global_denoising_schedule: true
+    log_global_velocity_schedule: true
+    log_frame_nfe: true
+  tasks:
+    prediction:
+      streaming:
+        sliding_context_frames: 25
+        initial_context_frames: 25
+        stride_in_frames: 1            # sliding (non-chunk)
+        mode: adaptive                 # required for tail_finish; piggybacks on the existing per-block trigger
+        stop_based_on: readout         # readout-driven trigger
+        emit_eps: 0.0                  # gradnorm trigger off
+        frame_done_eps: 0.0            # per-frame freeze off (only the block-level trigger fires the tail)
+        emit_noise_level: 0.2          # block-level trigger threshold (k_hat <= 0.2 across the prefix block)
+        frame_done_noise_level: 0.0
+        max_cycles_without_emit: default
+        tail_finish:
+          enabled: true
+          n_cleanup_steps: 8            # 8 extra steps to drive triggered tokens to k=0
+          step_multiplier: 1.0          # set 2.0 for 2/remaining cleanup steps; final step lands exactly at 0
+          disable_momentum: true        # tail uses gd with momentum off; non-tail momentum restored after the tail
+  denoising:
+    equilibrium_lambda: 1.0
+    equilibrium_schedule: constant
+    sampling_algorithm: gd              # gd, ngd
+    num_sampling_steps: 100
+    default_eta_multiple: 1.0
+    mu: 0.0
+    inference_schedule:
+      enabled: true
+      family: linear_logsnr              # identity, sd3, linear_logsnr, c_function
+      t_end: 0.001
+      sd3:
+        r: 3.0
+      linear_logsnr:
+        lambda_max: 15.0
+        lambda_min: -15.0
+        shift: 0.0
+      c_function:
+        schedule: truncated
+        truncated_a: 0.8
+      inference_solver_index_source: readout_predicted   # noiselevelpred-driven solver index for the main loop
+
+load: ${algorithm.model_weights.minecraft.noiselevelpred.eqf}

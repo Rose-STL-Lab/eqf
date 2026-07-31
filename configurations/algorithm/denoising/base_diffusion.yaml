@@ -1,0 +1,31 @@
+# @package algorithm.denoising
+
+strategy: diffusion-forcing
+
+is_continuous: false
+
+
+# denoising learning objective
+mean_type: velocity # start_x, epsilon, velocity
+loss_type: velocity # start_x, epsilon, velocity
+var_type: fixed_large # fixed_large, fixed_small, learned_range
+
+noise_schedule: cosine_simple
+noise_abs_max: 20
+
+# loss weighting
+loss_weighting:
+  strategy: sigmoid
+  sigmoid_bias: -1.0
+
+use_causal_mask: false
+
+sampling_algorithm: ddim
+num_sampling_steps: 100
+num_noise_levels: 1000
+
+scheduling_matrix: full_sequence
+clip_noise: 20.0
+
+inference_schedule:
+  enabled: false

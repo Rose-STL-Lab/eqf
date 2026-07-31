@@ -1,0 +1,25 @@
+# @package _global_
+
+# python -m main shortcode=exp/minecraft/flowf/train ckpt_map=default +name=minecraft_fm
+
+
+defaults:
+  # model config such as size and inference params
+  - model_config/cogv/100m
+
+  # Shared across models for a particular dataset
+  - exp/minecraft/minecraft_base
+
+  - override /algorithm: flowf_video
+
+  - _self_
+
+
+experiment:
+  devices: 1
+  training:
+    batch_size: 8
+
+  validation:
+    batch_size: 8
+

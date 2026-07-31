@@ -1,0 +1,110 @@
+# Important, Be careful when modifying this file! The fields will be overridden by the shortcode config when running the actual experiment.
+# Only change things here for defaults that should be changed across all experiments!
+
+defaults:
+  - base_pytorch_algo
+  - backbone: base_cogv
+  - denoising: base_diffusion # need to switch when necessary
+  - readout: disabled
+  - vae: image_vae_minecraft
+  - _self_
+
+x_shape: ${dataset.observation_shape}
+max_frames: ${dataset.max_frames}
+n_frames: ${dataset.n_frames}
+frame_skip: ${dataset.frame_skip}
+external_cond_dim: ${dataset.external_cond_dim}
+external_cond_stack: ${dataset.external_cond_stack}
+latent: ${dataset.latent}
+
+backbone:
+  trainable_params: null
+
+# sampling
+chunk_size: -1
+
+noise_level: random_independent
+training_context_frames: 0
+
+tasks:
+  prediction:
+    enabled: True
+    sampling_strategy: streaming
+    streaming:
+      schedule: chunk # full_sequence, chunk, overlap, rolling
+      mode: fixed # fixed, adaptive
+      sliding_context_frames: null # validation sliding context (frames); null -> half forward window
+      initial_context_frames: null # validation initial context (frames); null -> sliding_context_frames
+      stride_in_frames: null # frames emitted per commit; null -> validation_horizon_tokens (token-space) for chunk/full_sequence, else 1 token
+      inner_steps_per_emit: null # fixed mode; null -> aligned default ~= num_sampling_steps * stride_in_tokens / validation_horizon_tokens
+      max_inner_steps: null # adaptive mode budget; null -> max(N-1, inner_steps_per_emit)
+      conditioning_mode: conditional # conditional or stabilized_conditional
+      stabilization_level: 0.0 # only used when conditioning_mode=stabilized_conditional
+      stop_based_on: gradnorm # gradnorm or readout
+      emit_eps: 0.0 # adaptive gradnorm: block residual threshold
+      frame_done_eps: 0.0 # adaptive gradnorm: per-frame freeze threshold
+      emit_noise_level: 0.0 # adaptive readout: block noise level threshold
+      frame_done_noise_level: 0.0 # adaptive readout: per-frame freeze threshold
+      should_bake_in: false # optional override: allow bake-in in adaptive mode
+      max_cycles_without_emit: default # max number of inner loops allowed between emitting a prefix
+      initial_noise_profile: flat # flat, pyramid
+      return_streaming_state: false # include final StreamingState in other_results. this will let us do warm starts later.
+      tail_finish:                    # deterministic finishing-tail early stop (non-chunk)
+        enabled: false                # when on, after the per-block trigger fires we run n_cleanup_steps extra steps to drive ready-prefix tokens to k=0 before emitting
+        n_cleanup_steps: 4            # cleanup-step depth
+        step_multiplier: 1.0          # closed-loop tail step multiplier; 2.0 takes 2/remaining k each cleanup step, final step exactly to 0
+        disable_momentum: true        # force gd + zero momentum during the tail; non-tail token momentum is restored after the tail
+
+  reconstruction:
+    enabled: True
+
+compile: False
+
+
+# NOTE: the reason why we write logging here in `algorithm` is that we define "Step behavior" in algorithm, not in experiment
+logging:
+  deterministic: 42
+  loss_freq: 100
+  grad_norm_freq: 1000 # DON'T set to small, otherwise it will slow down training!
+  max_num_videos: 32 # Change this will only affect the number of videos to log, not the real number of data used in validation loop, check experiment config for that `num_validation_videos`
+  n_metrics_frames: null
+  metrics:
+    - fvd
+    # - is
+    # - fid
+    - lpips # this will consume a lot of memory
+    - mse
+    - psnr
+    - vbench
+    - ssim
+    # - fvd_over_time
+  metrics_batch_size: 8
+  # Cap on the number of frames/images passed to frame-wise metrics (LPIPS/FID/SSIM/PSNR/MSE) at once.
+  # Interpreted as max N for tensors shaped (N, C, H, W) after flattening time.
+  # If null, defaults to metrics_batch_size.
+  metrics_frame_batch_size: 25
+  # Cap on frames/image-pairs passed to VBench model forwards after flattening time.
+  # If null, VBench forwards are not chunked.
+  vbench_metrics_frame_batch_size: 25
+  # Windowed FVD over generated rollout time. Only consumed when `fvd_over_time`
+  # is in `metrics` (and only built for the `prediction` task). I3D feature
+  # extraction reuses `metrics_batch_size` for chunking; persistence honors
+  # `raw_dir` for an optional JSON curve dump and logs W&B curve artifacts by default.
+  fvd_over_time:
+    clip_len: 25
+    gen_stride: 25
+    ref_stride: 25
+    reference_mode: global_pooled # global_pooled | time_aligned
+    # Options: torch_eigh (GPU eig, fast), torchmetrics (canonical scipy sqrtm, slow).
+    fvd_distance_backend: torch_eigh
+  sanity_generation: True # generate video samples during sanity check
+  raw_dir: null
+  log_global_denoising_schedule: false
+  log_frame_nfe: false
+  log_global_readout_noise_level_schedule: false
+  log_global_velocity_schedule: false
+  inference_step_to_noise_level_thresholds: null # e.g. [0.5, 0.3, 0.1, 0.05, 0.01]; requires readout-enabled model
+  velocity_log_yscale: true
+  raw_velocity: true
+  loss_bucket_count: 5
+  

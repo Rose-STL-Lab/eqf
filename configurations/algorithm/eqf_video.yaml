@@ -1,0 +1,6 @@
+# Important, Be careful when modifying this file! The fields will be overridden by the shortcode config when running the actual experiment.
+# Only change things here for defaults that should be changed across all experiments!
+
+defaults:
+  - denoising_video
+  - override denoising: equilibrium_matching

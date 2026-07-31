@@ -1,0 +1,38 @@
+# @package _global_
+#
+# Preprocess Minecraft videos into VAE latents and save them under:
+#   {dataset.save_dir}_latent_{latent_resolution}/<split>/**/*.pt
+#
+# Example:
+# python -m main shortcode=preprocess/preprocess_minecraft +name=preprocess_latent_minecraft algorithm=image_vae_preprocessor experiment=video_latent_preprocessing dataset=minecraft ckpt_map=default
+#
+# Notes:
+# - Make sure `dataset.max_frames` / `dataset.n_frames` is >= the max video length if you want full-video latents.
+# - `dataset.latent.enable` must remain false for preprocessing (we are *creating* latents).
+#
+
+defaults:
+  - override /algorithm/vae: image_vae_minecraft
+
+dataset:
+  # Set this to the maximum expected length (in frames) to avoid truncation.
+  max_frames: 301
+  n_frames: 301
+  frame_skip: 1
+  latent:
+    enable: false
+    is_preprocessing_expt: true
+
+experiment:
+  devices: "auto"
+  validation:
+    # Increase if your videos are fixed-length; decrease if you hit OOM.
+    batch_size: 1
+    num_default_clips: null
+    num_validation_clips: null
+    splits_included: ['training', 'validation']
+    dataloader:
+      num_workers: 4
+      shuffle: false
+
+
