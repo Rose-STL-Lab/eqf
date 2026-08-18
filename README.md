@@ -204,7 +204,15 @@ The [full code wiki](https://github.com/Rose-STL-Lab/eqf/wiki) contains detailed
 ## Citation
 
 ```bibtex
-todo
+@misc{lillemark2026equilibriumforcingadaptivevideo,
+  title={Equilibrium Forcing: Adaptive Video Generation Without Noise Conditioning}, 
+  author={Hansen Jin Lillemark and Alex Rojas and Zachary Novack and Runqian Wang and Yilun Du and Yian Ma and Taylor Berg-Kirkpatrick and Rose Yu},
+  year={2026},
+  eprint={2608.14706},
+  archivePrefix={arXiv},
+  primaryClass={cs.CV},
+  url={https://arxiv.org/abs/2608.14706}, 
+}
 ```
 
 ## Acknowledgement
