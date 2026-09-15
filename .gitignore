@@ -1,0 +1,67 @@
+# Python and editor state
+**/__pycache__/
+*.py[cod]
+.vscode/
+*.code-workspace
+
+# Local environments and secrets
+.env
+.venv/
+**/my_secrets.yaml
+
+# Experiment data and outputs
+data
+downloaded_checkpoints/
+huggingface/
+lightning_logs/
+logs/
+outputs
+**/results/
+**/wandb/
+**/.requeue_links/
+
+# Local notebooks and caches
+notebooks/
+wiki/
+scripts/wandb_backfill_group_key.py
+*.pkl
+*.pickle
+*.joblib
+
+# Model and dataset artifacts
+*.bin
+*.ckpt
+*.csv
+*.jsonl
+*.log
+*.mds
+*.mdx
+*.npy
+*.npz
+*.pt
+*.pth
+*.safetensors
+
+# Generated media
+*.gif
+*.jpeg
+*.jpg
+*.mp3
+*.mp4
+*.png
+*.svg
+*.wav
+*.webp
+
+# Archives and scheduler output
+*.7z
+*.err
+*.gz
+*.lock
+*.out
+*.tar
+*.tar.bz2
+*.tar.gz
+*.tar.lzma
+*.tar.xz
+*.zip
