@@ -21,7 +21,7 @@
     <br/>
     *Equal contribution <sup>1</sup>UC San Diego <sup>2</sup>MIT <sup>3</sup>Harvard University
   </p>
-  <h3 align="center"><a href="file:///Users/hansen/Desktop/ucsd/equilibriumforcing.github.io/static/pdf/eqf.pdf">Paper</a> | <a href="https://equilibriumforcing.github.io/">Website</a> | <a href="https://huggingface.co/hlillemark/eqf">Models</a></h3>
+  <h3 align="center"><a href="https://arxiv.org/abs/2608.14706">Paper</a> | <a href="https://equilibriumforcing.github.io/">Website</a> | <a href="https://huggingface.co/hlillemark/eqf">Models</a></h3>
 </p>
 
 Welcome to the codebase for the NeurIPS 2026 paper [Equilibrium Forcing: Adaptive Video Generation Without Noise Conditioning](https://equilibriumforcing.github.io)! EqF proposes to train video denoising generative models without noise level conditions. With an equilibrium field, EqF can leverage adaptive sampling algorithms to improve video generation performance, rather than following hand-designed rigid sampling schedules typically for video generation. The paper's analysis elucidates how noise-unconditional models can perform better than noise-conditional models (e.g. Flow Matching) through avoiding incorrect noise level conditions, how the two classes of models in fact learn the same underlying denoising velocity field, and how the EqF objective incentivizes the model to estimate the noise level of an input internally.
